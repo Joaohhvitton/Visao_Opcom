@@ -211,3 +211,12 @@ applyRole();
 loadStoredBase();
 }
 };
+
+const SUPABASE_URL = "https://xxxx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOi...";
+
+const supabase = supabasejs.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
