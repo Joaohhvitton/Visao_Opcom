@@ -3,36 +3,61 @@ Chart.register(ChartDataLabels);
 let base=[];
 let dark=false;
 
-const strongColors=[
-"#ff6b6b",
-"#4ecdc4",
-"#ffe66d",
-"#5f27cd",
-"#48dbfb",
-"#1dd1a1",
-"#ff9f43",
-"#ee5253",
-"#0abde3",
-"#10ac84"
-];
+const baseColor="#530F0A";
+const accent="#ff6b57";
+
+// ================= KPI ANIMATION
+
+function animateNumber(el,final){
+let n=0;
+let step=Math.ceil(final/30)||1;
+
+let t=setInterval(()=>{
+n+=step;
+if(n>=final){
+el.innerText=final;
+clearInterval(t);
+}else el.innerText=n;
+},20);
+}
+
+// ================= FILTER FX
+
+function animateFilterRefresh(){
+document.querySelectorAll(".card,.kpiCard")
+.forEach((el,i)=>{
+el.classList.add("updating");
+setTimeout(()=>el.classList.remove("updating"),300+i*40);
+});
+}
+
+// ================= THEME
 
 function toggleTheme(){
 dark=!dark;
 document.body.classList.toggle("dark");
-document.querySelector(".themeToggle").innerText = dark ? "☀️" : "🌙";
+themeBtn.innerText=dark?"☀️":"🌙";
 render();
 }
 
+// ================= EXCEL LOAD
+
 upload.onchange=e=>{
 const reader=new FileReader();
+
 reader.onload=evt=>{
 const wb=XLSX.read(evt.target.result,{type:'binary'});
-base=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+base=XLSX.utils.sheet_to_json(
+wb.Sheets[wb.SheetNames[0]]
+);
 buildFilter();
 render();
 };
+
 reader.readAsBinaryString(e.target.files[0]);
 };
+
+// ================= HELPERS
 
 function splitSquad(v){
 if(!v) return [];
@@ -51,89 +76,190 @@ m[v]=(m[v]||0)+1;
 return m;
 }
 
-function draw(id,type,map,legend=false){
+// ================= FILTER BUILD
+
+function buildFilter(){
+let s=new Set();
+base.forEach(r=>
+splitSquad(r["Squad/Team"]).forEach(x=>s.add(x))
+);
+
+squadFilter.innerHTML=
+"<option>Todos</option>"+
+[...s].map(x=>`<option>${x}</option>`).join("");
+}
+
+squadFilter.onchange=()=>{
+squadFilter.style.transform="scale(1.08)";
+setTimeout(()=>squadFilter.style.transform="scale(1)",150);
+
+animateFilterRefresh();
+render();
+};
+
+// ================= DRAW SORTED CHART
+
+function draw(id,type,map){
 
 const ctx=document.getElementById(id);
 if(ctx.chart) ctx.chart.destroy();
 
-let labels=Object.keys(map);
-let values=Object.values(map);
+let entries=Object.entries(map)
+.sort((a,b)=>b[1]-a[1]);
 
-let pairs=labels.map((l,i)=>({l,v:values[i]})).sort((a,b)=>b.v-a.v);
-labels=pairs.map(x=>x.l);
-values=pairs.map(x=>x.v);
+let labels=entries.map(e=>e[0]);
+let values=entries.map(e=>e[1]);
+let max=Math.max(...values);
 
 ctx.chart=new Chart(ctx,{
-type:type==="barh"?"bar":type,
+type:type,
 data:{
-labels:labels,
+labels,
 datasets:[{
 data:values,
-backgroundColor:strongColors,
-borderWidth:2
+backgroundColor:values.map(v=>
+v===max?accent:baseColor
+),
+borderRadius:8
 }]
 },
 options:{
-indexAxis:type==="barh"?'y':'x',
-plugins:{
-legend:{
-display:legend,
-labels:{
-color:"#fff",
-font:{weight:"bold",size:14}
-}
+animation:{
+duration:1100,
+easing:"easeOutQuart"
 },
+plugins:{
+legend:{display:false},
 tooltip:{
 callbacks:{
-label:(c)=>" "+Math.round(c.raw)
+label:c=>" "+c.raw+" itens"
 }
 },
 datalabels:{
-color:"#ffffff",
-font:{weight:"bold",size:14},
-formatter:(v)=>Math.round(v)
+color:"#fff",
+font:{weight:"bold"},
+formatter:v=>v
 }
 },
 scales:{
-x:{grid:{display:false},ticks:{color:"#fff",font:{weight:"bold"}}},
-y:{grid:{display:false},ticks:{color:"#fff",font:{weight:"bold"}}}
+x:{grid:{display:false}},
+y:{grid:{display:false}}
 }
 }
 });
 }
 
-function buildFilter(){
-let s=new Set();
-base.forEach(r=>splitSquad(r["Squad/Team"]).forEach(x=>s.add(x)));
-squadFilter.innerHTML="<option value='Todos'>Todos</option>"+
-[...s].map(x=>`<option>${x}</option>`).join("");
-}
-
-squadFilter.onchange=render;
+// ================= RENDER
 
 function render(){
 
-let data=squadFilter.value==="Todos"
-? base
-: base.filter(r=>splitSquad(r["Squad/Team"]).includes(squadFilter.value));
+if(!base.length) return;
+
+let data=
+squadFilter.value==="Todos"
+?base
+:base.filter(r=>
+splitSquad(r["Squad/Team"])
+.includes(squadFilter.value)
+);
 
 let total=data.length;
-kpiTotal.innerText=total;
 
-let done=data.filter(r=>(r.Status||"").toLowerCase().includes("concl")).length;
-kpiDone.innerText=Math.round((done/total)*100||0)+"%";
+let done=data.filter(r=>
+(r.Status||"").toLowerCase()
+.includes("concl")
+).length;
 
-let bug=data.filter(r=>(r.Tipo||"").toLowerCase().includes("bug")).length;
-kpiBug.innerText=Math.round((bug/total)*100||0)+"%";
+let bug=data.filter(r=>
+(r.Tipo||"").toLowerCase()
+.includes("bug")
+).length;
 
-draw("squadChart","bar",count("Squad/Team",data,true),false);
-draw("statusChart","barh",count("Status",data),false);
-draw("tipoChart","bar",count("Tipo",data),false);
-draw("prioChart","bar",count("Prioridade",data),false);
+animateNumber(kpiTotal,total);
+animateNumber(kpiDone,done);
+kpiBug.innerText=
+Math.round((bug/total)*100||0)+"%";
 
-draw("doneChart","pie",{
-"Concluídas":done,
-"Não concluídas":total-done
-},true);
+draw("squadChart","bar",
+count("Squad/Team",data,true));
 
+draw("statusChart","bar",
+count("Status",data));
+
+draw("tipoChart","bar",
+count("Tipo",data));
+
+draw("prioChart","bar",
+count("Prioridade",data));
+}
+
+const USERS = {
+admin: { pass:"123", role:"admin" },
+viewer: { pass:"321", role:"viewer"}
+};
+
+function doLogin(){
+
+let u=user.value.trim();
+let p=pass.value.trim();
+
+if(!USERS[u] || USERS[u].pass!==p){
+alert("Login inválido");
+return;
+}
+
+sessionStorage.setItem("role", USERS[u].role);
+sessionStorage.setItem("user", u);
+
+loginScreen.style.display="none";
+
+applyRole();
+loadStoredBase(); // 🔥 sempre carrega base oficial
+
+}
+
+
+function applyRole(){
+
+let role=sessionStorage.getItem("role");
+let userName=sessionStorage.getItem("user");
+
+upload.style.display =
+role==="admin" ? "block" : "none";
+
+userBadge.innerText =
+userName ? "👤 "+userName : "";
+
+}
+
+sessionStorage.setItem(
+"baseData",
+JSON.stringify(base)
+);
+
+function loadStoredBase(){
+
+let saved = localStorage.getItem("baseData");
+
+if(saved){
+  base = JSON.parse(saved);
+  buildFilter();
+  render();
+}
+
+}
+
+window.onload = ()=>{
+
+if(sessionStorage.getItem("role")){
+loginScreen.style.display="none";
+applyRole();
+loadStoredBase(); // 🔥 dashboard volta
+}
+
+};
+
+function logout(){
+sessionStorage.clear();
+location.reload();
 }
