@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>BI Demandas Redeflex</title>
+<title>Visão | OPCOM</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -12,39 +12,62 @@
 </head>
 
 <body>
+<div id="loginScreen" class="loginScreen">
+  <div class="loginBox">
+    <h3>Acesso Dashboard</h3>
 
-<div class="header">
-  <h2>OPCOM | Visão 📊</h2>
+    <input id="user" placeholder="Usuário">
+    <input id="pass" type="password" placeholder="Senha">
 
-  <div class="header-right">
-    <div class="themeToggle" onclick="toggleTheme()">🌙</div>
-    <input type="file" id="upload" class="btn">
+    <button onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
-<div class="grid kpiGrid">
-  <div class="card"><div>Total Demandas</div><div id="kpiTotal" class="kpi">0</div></div>
-  <div class="card"><div>% Concluídas</div><div id="kpiDone" class="kpi">0%</div></div>
-  <div class="card"><div>% Bugs</div><div id="kpiBug" class="kpi">0%</div></div>
+
+<div class="header">
+  <h2>Visão | OPCOM 📊</h2>
+  <div id="userBadge"></div>
+
+  <div class="headerRight">
+    <button onclick="toggleTheme()" class="themeBtn" id="themeBtn">🌙</button>
+    <input type="file" id="upload">
+    <button class="btnLogout" onclick="logout()">Sair</button>
+  </div>
 </div>
 
-<div class="filterBlock">
-  <label>Filtrar Squad:</label>
+<div class="kpiGrid">
+
+  <div class="kpiCard">
+    <span>Total Demandas</span>
+    <strong id="kpiTotal">0</strong>
+  </div>
+
+  <div class="kpiCard">
+    <span>Demandas Concluídas</span>
+    <strong id="kpiDone">0</strong>
+  </div>
+
+  <div class="kpiCard">
+    <span>% Bugs</span>
+    <strong id="kpiBug">0%</strong>
+  </div>
+
+</div>
+
+<div class="filterBox">
+  Filtrar Squad:
   <select id="squadFilter"></select>
 </div>
 
 <div class="grid">
 
-<div class="card"><h4>Demandas por Squad</h4><canvas id="squadChart"></canvas></div>
-<div class="card"><h4>Status</h4><canvas id="statusChart"></canvas></div>
-<div class="card"><h4>Conclusão</h4><canvas id="doneChart"></canvas></div>
-
-<div class="card"><h4>Tipo</h4><canvas id="tipoChart"></canvas></div>
-<div class="card"><h4>Prioridade</h4><canvas id="prioChart"></canvas></div>
+  <div class="card"><h3>Demandas por Squad</h3><canvas id="squadChart"></canvas></div>
+  <div class="card"><h3>Status</h3><canvas id="statusChart"></canvas></div>
+  <div class="card"><h3>Tipos</h3><canvas id="tipoChart"></canvas></div>
+  <div class="card"><h3>Prioridade</h3><canvas id="prioChart"></canvas></div>
 
 </div>
 
 <script src="script.js"></script>
 </body>
-
 </html>
