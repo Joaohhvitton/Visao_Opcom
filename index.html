@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>BI Demandas Redeflex</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header">
+  <h2>📊 BI Demandas</h2>
+
+  <div class="header-right">
+    <div class="themeToggle" onclick="toggleTheme()">🌙</div>
+    <input type="file" id="upload" class="btn">
+  </div>
+</div>
+
+<div class="grid kpiGrid">
+  <div class="card"><div>Total Demandas</div><div id="kpiTotal" class="kpi">0</div></div>
+  <div class="card"><div>% Concluídas</div><div id="kpiDone" class="kpi">0%</div></div>
+  <div class="card"><div>% Bugs</div><div id="kpiBug" class="kpi">0%</div></div>
+</div>
+
+<div class="filterBlock">
+  <label>Filtrar Squad:</label>
+  <select id="squadFilter"></select>
+</div>
+
+<div class="grid">
+
+<div class="card"><h4>Demandas por Squad</h4><canvas id="squadChart"></canvas></div>
+<div class="card"><h4>Status</h4><canvas id="statusChart"></canvas></div>
+<div class="card"><h4>Conclusão</h4><canvas id="doneChart"></canvas></div>
+
+<div class="card"><h4>Tipo</h4><canvas id="tipoChart"></canvas></div>
+<div class="card"><h4>Prioridade</h4><canvas id="prioChart"></canvas></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
