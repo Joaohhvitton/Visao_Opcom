@@ -12,60 +12,74 @@
 </head>
 
 <body>
+
+<!-- LOGIN -->
 <div id="loginScreen" class="loginScreen">
+
+  <div class="loginBgAnim"></div>
+
   <div class="loginBox">
-    <h3>Acesso Dashboard</h3>
+
+    <div class="brand">
+      <div class="logoPulse"></div>
+      <h2>OPCOM</h2>
+      <span>Painel de Visão</span>
+    </div>
 
     <input id="user" placeholder="Usuário">
     <input id="pass" type="password" placeholder="Senha">
 
-    <button onclick="doLogin()">Entrar</button>
+    <button id="loginBtn" onclick="doLogin()">
+      <span id="loginText">Entrar</span>
+    </button>
+
+    <div id="loginError"></div>
+
   </div>
 </div>
 
-
+<!-- HEADER -->
 <div class="header">
   <h2>Visão | OPCOM 📊</h2>
-  <div id="userBadge"></div>
 
-  <div class="headerRight">
-    <button onclick="toggleTheme()" class="themeBtn" id="themeBtn">🌙</button>
-    <input type="file" id="upload">
+  <div class="header-right">
+    <div id="userBadge"></div>
+    <button class="themeToggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <input type="file" id="upload" class="btn">
     <button class="btnLogout" onclick="logout()">Sair</button>
   </div>
 </div>
 
+<!-- KPI -->
 <div class="kpiGrid">
-
   <div class="kpiCard">
-    <span>Total Demandas</span>
-    <strong id="kpiTotal">0</strong>
+    <div>Total Demandas</div>
+    <div id="kpiTotal" class="kpiValue">0</div>
   </div>
 
   <div class="kpiCard">
-    <span>Demandas Concluídas</span>
-    <strong id="kpiDone">0</strong>
+    <div>Concluídas</div>
+    <div id="kpiDone" class="kpiValue">0</div>
   </div>
 
   <div class="kpiCard">
-    <span>% Bugs</span>
-    <strong id="kpiBug">0%</strong>
+    <div>% Bugs</div>
+    <div id="kpiBug" class="kpiValue">0%</div>
   </div>
-
 </div>
 
-<div class="filterBox">
+<!-- FILTRO -->
+<div class="filterBlock">
   Filtrar Squad:
   <select id="squadFilter"></select>
 </div>
 
+<!-- GRÁFICOS -->
 <div class="grid">
-
   <div class="card"><h3>Demandas por Squad</h3><canvas id="squadChart"></canvas></div>
   <div class="card"><h3>Status</h3><canvas id="statusChart"></canvas></div>
   <div class="card"><h3>Tipos</h3><canvas id="tipoChart"></canvas></div>
   <div class="card"><h3>Prioridade</h3><canvas id="prioChart"></canvas></div>
-
 </div>
 
 <script src="script.js"></script>
