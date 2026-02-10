@@ -291,6 +291,7 @@ window.APP_CONFIG = {
   googleSheets: {
     sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
     apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
-    range: "Base!A:D"
+    range: "Base!A:P"
   }
 };
+
