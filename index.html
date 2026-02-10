@@ -8,8 +8,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
+<link rel="icon" type="image/png" sizes="32x32" href="Logo_OPCOM-removebg-preview.png">  
 <link rel="stylesheet" href="./style.css?v=3">
-<link rel="icon" type="image/png" sizes="32x32" href="Logo_OPCOM-removebg-preview.png"> 
 </head>
 
 <body>
@@ -77,8 +77,16 @@
   <div class="card"><h3>Tipos</h3><canvas id="tipoChart"></canvas></div>
   <div class="card"><h3>Prioridade</h3><canvas id="prioChart"></canvas></div>
 </div>
+
+<div id="welcomePopup" class="welcomePopup hidden">
+  <div class="welcomeCard">
+    <h3>Bem-vindo ao Painel OPCOM 👋</h3>
+    <p>Agora os dados são carregados automaticamente da base compartilhada para manter a visão única entre as máquinas.</p>
+    <button id="welcomeOkBtn" class="btn">OK</button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
-
