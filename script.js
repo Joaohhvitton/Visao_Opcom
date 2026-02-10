@@ -1,3 +1,12 @@
+window.APP_CONFIG = {
+  googleSheets: {
+    sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
+    apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
+    range: "Base!A:P"
+  }
+};
+
+
 Chart.register(ChartDataLabels);
 
 const loginBtn = document.getElementById("loginBtn");
@@ -90,8 +99,20 @@ function toggleTheme() {
 
 /* GOOGLE SHEETS */
 
-function buildGoogleSheetUrl() {
-  return `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_RANGE)}?key=${API_KEY}`;
+function buildGoogleSheetUrl(range = SHEET_RANGE) {
+  return `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
+}
+
+async function fetchSheetRows(range) {
+  const response = await fetch(buildGoogleSheetUrl(range));
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const apiMessage = payload?.error?.message || `HTTP ${response.status}`;
+    throw new Error(apiMessage);
+  }
+
+  return payload.values || [];
 }
 
 function normalizeRows(headers, dataRows) {
@@ -112,14 +133,17 @@ async function loadGoogleSheetBase() {
   }
 
   try {
-    const response = await fetch(buildGoogleSheetUrl());
+    let rows = [];
 
-    if (!response.ok) {
-      throw new Error(`Erro ao consultar Google Sheets: ${response.status}`);
+    try {
+      rows = await fetchSheetRows(SHEET_RANGE);
+    } catch (err) {
+      const invalidRange = String(err.message || "").toLowerCase().includes("unable to parse range");
+      if (!invalidRange || SHEET_RANGE === "A:D") {
+        throw err;
+      }
+      rows = await fetchSheetRows("A:D");
     }
-
-    const json = await response.json();
-    const rows = json.values || [];
 
     if (rows.length < 2) {
       base = [];
@@ -134,7 +158,7 @@ async function loadGoogleSheetBase() {
     render();
   } catch (err) {
     console.error(err);
-    alert("Não foi possível carregar dados do Google Sheets.");
+    alert(`Não foi possível carregar dados do Google Sheets. Motivo: ${err.message}`);
   }
 }
 
@@ -286,12 +310,4 @@ window.onload = async () => {
 };
 
 loginBtn.addEventListener("click", doLogin);
-
-window.APP_CONFIG = {
-  googleSheets: {
-    sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
-    apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
-    range: "Base!A:P"
-  }
-};
 
