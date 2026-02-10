@@ -15,26 +15,21 @@
 
 <!-- LOGIN -->
 <div id="loginScreen" class="loginScreen">
-
   <div class="loginBgAnim"></div>
 
-  <div class="loginBox">
-
-    <div class="brand">
-      <div class="logoPulse"></div>
-      <h2>OPCOM</h2>
-      <span>Painel de Visão</span>
-    </div>
+  <div class="loginBox pulseRed">
+    <h2 class="loginTitle">OPCOM</h2>
+    <span class="loginSubtitle">Painel de Visão</span>
 
     <input id="user" placeholder="Usuário">
     <input id="pass" type="password" placeholder="Senha">
 
-    <button id="loginBtn" onclick="doLogin()">
-      <span id="loginText">Entrar</span>
+    <button id="loginBtn">
+      <span id="loginText" class="btnText">Entrar</span>
+      <span class="btnLoader"></span>
     </button>
 
     <div id="loginError"></div>
-
   </div>
 </div>
 
@@ -81,8 +76,6 @@
   <div class="card"><h3>Tipos</h3><canvas id="tipoChart"></canvas></div>
   <div class="card"><h3>Prioridade</h3><canvas id="prioChart"></canvas></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>
-
