@@ -139,10 +139,10 @@ async function loadGoogleSheetBase() {
       rows = await fetchSheetRows(SHEET_RANGE);
     } catch (err) {
       const invalidRange = String(err.message || "").toLowerCase().includes("unable to parse range");
-      if (!invalidRange || SHEET_RANGE === "A:D") {
+      if (!invalidRange || SHEET_RANGE === "A:P") {
         throw err;
       }
-      rows = await fetchSheetRows("A:D");
+      rows = await fetchSheetRows("A:P");
     }
 
     if (rows.length < 2) {
@@ -310,4 +310,5 @@ window.onload = async () => {
 };
 
 loginBtn.addEventListener("click", doLogin);
+
 
