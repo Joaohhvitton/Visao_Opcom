@@ -22,7 +22,7 @@ function resolveGoogleSheetsConfig() {
   return {
     sheetId: cfg.sheetId || cfg.SHEET_ID || "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
     apiKey: cfg.apiKey || cfg.API_KEY || "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
-    range: cfg.range || cfg.SHEET_RANGE || "Base!A:D"
+    range: cfg.range || cfg.SHEET_RANGE || "Base!A:P"
   };
 }
 
@@ -295,4 +295,5 @@ window.APP_CONFIG = {
     range: "Base!A:P"
   }
 };
+
 
