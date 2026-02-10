@@ -7,216 +7,292 @@ const user = document.getElementById("user");
 const pass = document.getElementById("pass");
 const loginScreen = document.getElementById("loginScreen");
 
-const USERS={
-admin:{pass:"123",role:"admin"},
-viewer:{pass:"123",role:"viewer"}
+const USERS = {
+  admin: { pass: "123", role: "admin" },
+  viewer: { pass: "123", role: "viewer" }
 };
 
-let base=[];
-let dark=false;
+function resolveGoogleSheetsConfig() {
+  const fromNested = window.APP_CONFIG?.googleSheets;
+  const fromRoot = window.APP_CONFIG;
+  const fromAltGlobal = window.GOOGLE_SHEETS_CONFIG;
 
-const baseColor="#530F0A";
-const accent="#ff6b57";
+  const cfg = fromNested || fromAltGlobal || fromRoot || {};
+
+  return {
+    sheetId: cfg.sheetId || cfg.SHEET_ID || "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
+    apiKey: cfg.apiKey || cfg.API_KEY || "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
+    range: cfg.range || cfg.SHEET_RANGE || "Base!A:D"
+  };
+}
+
+const googleSheetsConfig = resolveGoogleSheetsConfig();
+const SHEET_ID = googleSheetsConfig.sheetId;
+const API_KEY = googleSheetsConfig.apiKey;
+const SHEET_RANGE = googleSheetsConfig.range;
+
+let base = [];
+let dark = false;
+
+const baseColor = "#530F0A";
+const accent = "#ff6b57";
 
 /* LOGIN */
 
-function doLogin(){
+function doLogin() {
+  loginError.innerText = "";
+  loginBtn.classList.add("loading");
+  loginText.innerText = "Validando...";
 
-loginError.innerText="";
-loginBtn.classList.add("loading");
-loginText.innerText="Validando...";
+  setTimeout(async () => {
+    const u = user.value.trim();
+    const p = pass.value.trim();
 
-setTimeout(()=>{
+    if (!USERS[u] || USERS[u].pass !== p) {
+      loginBtn.classList.remove("loading");
+      loginText.innerText = "Entrar";
+      loginError.innerText = "Login inválido";
+      return;
+    }
 
-let u=user.value.trim();
-let p=pass.value.trim();
+    sessionStorage.setItem("role", USERS[u].role);
+    sessionStorage.setItem("user", u);
 
-if(!USERS[u] || USERS[u].pass!==p){
-loginBtn.classList.remove("loading");
-loginText.innerText="Entrar";
-loginError.innerText="Login inválido";
-return;
+    loginScreen.style.display = "none";
+    applyRole();
+    await loadGoogleSheetBase();
+
+    loginBtn.classList.remove("loading");
+    loginText.innerText = "Entrar";
+  }, 600);
 }
 
-sessionStorage.setItem("role",USERS[u].role);
-sessionStorage.setItem("user",u);
-
-loginScreen.style.display="none";
-applyRole();
-loadStoredBase();
-
-},600);
-}
-
-function logout(){
-sessionStorage.clear();
-location.reload();
+function logout() {
+  sessionStorage.clear();
+  location.reload();
 }
 
 /* ROLE */
 
-function applyRole(){
-let role=sessionStorage.getItem("role");
-userBadge.innerText="👤 "+sessionStorage.getItem("user");
-upload.style.display=role==="admin"?"block":"none";
+function applyRole() {
+  const role = sessionStorage.getItem("role");
+  userBadge.innerText = "👤 " + sessionStorage.getItem("user");
+  upload.style.display = role === "admin" ? "block" : "none";
 }
 
 /* THEME */
 
-function toggleTheme(){
-dark=!dark;
-document.body.classList.toggle("dark");
-themeBtn.innerText=dark?"☀️":"🌙";
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle("dark");
+  themeBtn.innerText = dark ? "☀️" : "🌙";
 }
 
-/* STORAGE */
+/* GOOGLE SHEETS */
 
-function loadStoredBase(){
-let saved=localStorage.getItem("baseData");
-if(saved){
-base=JSON.parse(saved);
-buildFilter();
-render();
+function buildGoogleSheetUrl() {
+  return `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_RANGE)}?key=${API_KEY}`;
 }
+
+function normalizeRows(headers, dataRows) {
+  return dataRows.map(row => {
+    const item = {};
+    headers.forEach((header, index) => {
+      item[header] = row[index] || "";
+    });
+    return item;
+  });
+}
+
+async function loadGoogleSheetBase() {
+  if (!SHEET_ID || !API_KEY) {
+    alert("Configuração do Google Sheets ausente. Verifique se config.js está publicado e carregado antes de script.js.");
+    console.error("Google Sheets config inválida", { SHEET_ID, API_KEY, SHEET_RANGE });
+    return;
+  }
+
+  try {
+    const response = await fetch(buildGoogleSheetUrl());
+
+    if (!response.ok) {
+      throw new Error(`Erro ao consultar Google Sheets: ${response.status}`);
+    }
+
+    const json = await response.json();
+    const rows = json.values || [];
+
+    if (rows.length < 2) {
+      base = [];
+      clearDashboard();
+      return;
+    }
+
+    const [headers, ...dataRows] = rows;
+    base = normalizeRows(headers, dataRows);
+
+    buildFilter();
+    render();
+  } catch (err) {
+    console.error(err);
+    alert("Não foi possível carregar dados do Google Sheets.");
+  }
 }
 
 /* UPLOAD */
 
-upload.onchange=e=>{
-if(sessionStorage.getItem("role")!=="admin"){
-alert("Somente admin pode importar");
-return;
-}
+upload.onchange = e => {
+  if (sessionStorage.getItem("role") !== "admin") {
+    alert("Somente admin pode importar");
+    return;
+  }
 
-const reader=new FileReader();
-reader.onload=evt=>{
-const wb=XLSX.read(evt.target.result,{type:'binary'});
-base=XLSX.utils.sheet_to_json(
-wb.Sheets[wb.SheetNames[0]]
-);
-localStorage.setItem("baseData",JSON.stringify(base));
-buildFilter();
-render();
-};
-reader.readAsBinaryString(e.target.files[0]);
+  const file = e.target.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const wb = XLSX.read(evt.target.result, { type: "binary" });
+    base = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+    buildFilter();
+    render();
+  };
+  reader.readAsBinaryString(file);
 };
 
 /* HELPERS */
 
-function splitSquad(v){
-if(!v) return [];
-return v.split(",").map(x=>x.trim());
+function splitSquad(v) {
+  if (!v) return [];
+  return v.split(",").map(x => x.trim());
 }
 
-function count(col,data,multi=false){
-let m={};
-data.forEach(r=>{
-let vals=multi?splitSquad(r[col]):[r[col]];
-vals.forEach(v=>{
-if(!v) return;
-m[v]=(m[v]||0)+1;
-});
-});
-return m;
+function count(col, data, multi = false) {
+  const m = {};
+  data.forEach(r => {
+    const vals = multi ? splitSquad(r[col]) : [r[col]];
+    vals.forEach(v => {
+      if (!v) return;
+      m[v] = (m[v] || 0) + 1;
+    });
+  });
+  return m;
+}
+
+function resetChart(id) {
+  const ctx = document.getElementById(id);
+  if (ctx?.chart) {
+    ctx.chart.destroy();
+  }
+}
+
+function clearDashboard() {
+  squadFilter.innerHTML = "<option>Todos</option>";
+  kpiTotal.innerText = "0";
+  kpiDone.innerText = "0";
+  kpiBug.innerText = "0%";
+  ["squadChart", "statusChart", "tipoChart", "prioChart"].forEach(resetChart);
 }
 
 /* FILTER */
 
-function buildFilter(){
-let s=new Set();
-base.forEach(r=>splitSquad(r["Squad/Team"]).forEach(x=>s.add(x)));
-squadFilter.innerHTML="<option>Todos</option>"+
-[...s].map(x=>`<option>${x}</option>`).join("");
+function buildFilter() {
+  const s = new Set();
+  base.forEach(r => splitSquad(r["Squad/Team"]).forEach(x => s.add(x)));
+  squadFilter.innerHTML =
+    "<option>Todos</option>" + [...s].map(x => `<option>${x}</option>`).join("");
 }
 
-squadFilter.onchange=()=>{
-animateFilterRefresh();
-render();
+squadFilter.onchange = () => {
+  animateFilterRefresh();
+  render();
 };
 
-function animateFilterRefresh(){
-document.querySelectorAll(".card,.kpiCard")
-.forEach((el,i)=>{
-el.classList.add("updating");
-setTimeout(()=>el.classList.remove("updating"),300+i*40);
-});
+function animateFilterRefresh() {
+  document.querySelectorAll(".card,.kpiCard").forEach((el, i) => {
+    el.classList.add("updating");
+    setTimeout(() => el.classList.remove("updating"), 300 + i * 40);
+  });
 }
 
 /* DRAW */
 
-function draw(id,map){
+function draw(id, map) {
+  const ctx = document.getElementById(id);
+  if (ctx.chart) ctx.chart.destroy();
 
-const ctx=document.getElementById(id);
-if(ctx.chart) ctx.chart.destroy();
+  const entries = Object.entries(map).sort((a, b) => b[1] - a[1]);
+  const labels = entries.map(e => e[0]);
+  const values = entries.map(e => e[1]);
+  const max = Math.max(...values, 0);
 
-let entries=Object.entries(map)
-.sort((a,b)=>b[1]-a[1]);
-
-let labels=entries.map(e=>e[0]);
-let values=entries.map(e=>e[1]);
-let max=Math.max(...values);
-
-ctx.chart=new Chart(ctx,{
-type:"bar",
-data:{
-labels,
-datasets:[{
-data:values,
-backgroundColor:values.map(v=>v===max?accent:baseColor),
-borderRadius:15
-}]
-},
-options:{
-animation:{duration:900},
-plugins:{
-legend:{display:false},
-datalabels:{color:"#fff",font:{weight:"bold"}}
-},
-scales:{x:{grid:{display:false}},y:{grid:{display:false}}}
-}
-});
+  ctx.chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: values.map(v => (v === max ? accent : baseColor)),
+        borderRadius: 15
+      }]
+    },
+    options: {
+      animation: { duration: 900 },
+      plugins: {
+        legend: { display: false },
+        datalabels: { color: "#fff", font: { weight: "bold" } }
+      },
+      scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+    }
+  });
 }
 
 /* RENDER */
 
-function render(){
+function render() {
+  if (!base.length) {
+    clearDashboard();
+    return;
+  }
 
-if(!base.length) return;
+  const data =
+    squadFilter.value === "Todos"
+      ? base
+      : base.filter(r => splitSquad(r["Squad/Team"]).includes(squadFilter.value));
 
-let data=
-squadFilter.value==="Todos"
-?base
-:base.filter(r=>
-splitSquad(r["Squad/Team"])
-.includes(squadFilter.value)
-);
+  const total = data.length;
+  const done = data.filter(r => (r.Status || "").toLowerCase().includes("concl")).length;
+  const bug = data.filter(r => (r.Tipo || "").toLowerCase().includes("bug")).length;
 
-let total=data.length;
-let done=data.filter(r=>
-(r.Status||"").toLowerCase().includes("concl")
-).length;
-let bug=data.filter(r=>
-(r.Tipo||"").toLowerCase().includes("bug")
-).length;
+  kpiTotal.innerText = total;
+  kpiDone.innerText = done;
+  kpiBug.innerText = Math.round((bug / total) * 100 || 0) + "%";
 
-kpiTotal.innerText=total;
-kpiDone.innerText=done;
-kpiBug.innerText=Math.round((bug/total)*100||0)+"%";
-
-draw("squadChart",count("Squad/Team",data,true));
-draw("statusChart",count("Status",data));
-draw("tipoChart",count("Tipo",data));
-draw("prioChart",count("Prioridade",data));
+  draw("squadChart", count("Squad/Team", data, true));
+  draw("statusChart", count("Status", data));
+  draw("tipoChart", count("Tipo", data));
+  draw("prioChart", count("Prioridade", data));
 }
 
 /* AUTO LOAD */
 
-window.onload=()=>{
-if(sessionStorage.getItem("role")){
-loginScreen.style.display="none";
-applyRole();
-loadStoredBase();
-}
+window.onload = async () => {
+  if (sessionStorage.getItem("role")) {
+    loginScreen.style.display = "none";
+    applyRole();
+    await loadGoogleSheetBase();
+  }
 };
 
 loginBtn.addEventListener("click", doLogin);
+
+
+window.APP_CONFIG = {
+  googleSheets: {
+    sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
+    apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
+    range: "Base!A:P"
+  }
+};
+
