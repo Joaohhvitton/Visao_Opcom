@@ -22,7 +22,7 @@ function resolveGoogleSheetsConfig() {
   return {
     sheetId: cfg.sheetId || cfg.SHEET_ID || "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
     apiKey: cfg.apiKey || cfg.API_KEY || "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
-    range: cfg.range || cfg.SHEET_RANGE || "Base!A:P"
+    range: cfg.range || cfg.SHEET_RANGE || "Base!A:D"
   };
 }
 
@@ -287,13 +287,10 @@ window.onload = async () => {
 
 loginBtn.addEventListener("click", doLogin);
 
-
 window.APP_CONFIG = {
   googleSheets: {
     sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
     apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
-    range: "Base!A:P"
+    range: "Base!A:D"
   }
 };
-
-
