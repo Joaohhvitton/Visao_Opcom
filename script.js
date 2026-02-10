@@ -14,6 +14,8 @@ const loginError = document.getElementById("loginError");
 const user = document.getElementById("user");
 const pass = document.getElementById("pass");
 const loginScreen = document.getElementById("loginScreen");
+const welcomePopup = document.getElementById("welcomePopup");
+const welcomeOkBtn = document.getElementById("welcomeOkBtn");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -45,6 +47,21 @@ let dark = false;
 const baseColor = "#530F0A";
 const accent = "#ff6b57";
 
+
+const WELCOME_POPUP_KEY = "welcomePopupSeen";
+
+function showWelcomePopup() {
+  if (!welcomePopup || sessionStorage.getItem(WELCOME_POPUP_KEY)) return;
+  welcomePopup.classList.remove("hidden");
+}
+
+function hideWelcomePopup() {
+  if (!welcomePopup) return;
+  welcomePopup.classList.add("hidden");
+  sessionStorage.setItem(WELCOME_POPUP_KEY, "1");
+}
+
+
 /* LOGIN */
 
 function doLogin() {
@@ -69,6 +86,7 @@ function doLogin() {
     loginScreen.style.display = "none";
     applyRole();
     await loadGoogleSheetBase();
+    showWelcomePopup();
 
     loginBtn.classList.remove("loading");
     loginText.innerText = "Entrar";
@@ -305,7 +323,18 @@ window.onload = async () => {
     loginScreen.style.display = "none";
     applyRole();
     await loadGoogleSheetBase();
+    showWelcomePopup();
   }
 };
+
+if (welcomeOkBtn) {
+  welcomeOkBtn.addEventListener("click", hideWelcomePopup);
+}
+
+if (welcomePopup) {
+  welcomePopup.addEventListener("click", e => {
+    if (e.target === welcomePopup) hideWelcomePopup();
+  });
+}
 
 loginBtn.addEventListener("click", doLogin);
