@@ -248,6 +248,22 @@ canvas{
   z-index:999;
 }
 
+.loginTitle{
+  color:#ffffff;
+  text-align:center;
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:1px;
+  margin:0;
+}
+
+.loginSubtitle{
+  text-align:center;
+  color:rgba(255,255,255,.7);
+  font-size:13px;
+  margin-bottom:14px;
+}
+
 .loginBgAnim{
   position:absolute;
   width:140%;
@@ -294,4 +310,38 @@ canvas{
   color:#ffb4aa;
   font-size:13px;
   text-align:center;
+}
+
+/* =========================
+   PULSO VERMELHO LEVE
+========================= */
+
+.pulseRed{
+  animation:pulseRed 3.5s ease-in-out infinite;
+  box-shadow:
+    0 0 0 rgba(255,0,0,0);
+}
+
+@keyframes pulseRed{
+  0%{
+    box-shadow:
+      0 0 0 0 rgba(180,30,20,.0),
+      0 0 18px rgba(180,30,20,.25);
+  }
+
+  50%{
+    box-shadow:
+      0 0 0 8px rgba(180,30,20,.08),
+      0 0 26px rgba(180,30,20,.45);
+  }
+
+  100%{
+    box-shadow:
+      0 0 0 0 rgba(180,30,20,.0),
+      0 0 18px rgba(180,30,20,.25);
+  }
+}
+
+.loginBgAnim{
+  pointer-events:none;
 }
