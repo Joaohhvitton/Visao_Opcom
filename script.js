@@ -16,6 +16,9 @@ const pass = document.getElementById("pass");
 const loginScreen = document.getElementById("loginScreen");
 const welcomePopup = document.getElementById("welcomePopup");
 const welcomeOkBtn = document.getElementById("welcomeOkBtn");
+const logoutPopup = document.getElementById("logoutPopup");
+const logoutCancelBtn = document.getElementById("logoutCancelBtn");
+const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -94,6 +97,20 @@ function doLogin() {
 }
 
 function logout() {
+  if (!logoutPopup) {
+    sessionStorage.clear();
+    location.reload();
+    return;
+  }
+  logoutPopup.classList.remove("hidden");
+}
+
+function cancelLogout() {
+  if (!logoutPopup) return;
+  logoutPopup.classList.add("hidden");
+}
+
+function confirmLogout() {
   sessionStorage.clear();
   location.reload();
 }
@@ -334,6 +351,20 @@ if (welcomeOkBtn) {
 if (welcomePopup) {
   welcomePopup.addEventListener("click", e => {
     if (e.target === welcomePopup) hideWelcomePopup();
+  });
+}
+
+if (logoutCancelBtn) {
+  logoutCancelBtn.addEventListener("click", cancelLogout);
+}
+
+if (logoutConfirmBtn) {
+  logoutConfirmBtn.addEventListener("click", confirmLogout);
+}
+
+if (logoutPopup) {
+  logoutPopup.addEventListener("click", e => {
+    if (e.target === logoutPopup) cancelLogout();
   });
 }
 
