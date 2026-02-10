@@ -1,5 +1,12 @@
 Chart.register(ChartDataLabels);
 
+const loginBtn = document.getElementById("loginBtn");
+const loginText = document.getElementById("loginText");
+const loginError = document.getElementById("loginError");
+const user = document.getElementById("user");
+const pass = document.getElementById("pass");
+const loginScreen = document.getElementById("loginScreen");
+
 const USERS={
 admin:{pass:"123",role:"admin"},
 viewer:{pass:"123",role:"viewer"}
@@ -212,5 +219,4 @@ loadStoredBase();
 }
 };
 
-
-
+loginBtn.addEventListener("click", doLogin);
