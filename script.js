@@ -22,7 +22,7 @@ const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
-  viewer: { pass: "123", role: "viewer" }
+  teste: { pass: "123", role: "teste" }
 };
 
 function resolveGoogleSheetsConfig() {
@@ -369,3 +369,4 @@ if (logoutPopup) {
 }
 
 loginBtn.addEventListener("click", doLogin);
+
