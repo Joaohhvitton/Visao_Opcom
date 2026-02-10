@@ -394,3 +394,22 @@ canvas{
   0%{transform:scale(.88) translateY(8px); opacity:0;}
   100%{transform:scale(1) translateY(0); opacity:1;}
 }
+
+
+.logoutCard .logoutActions{
+  display:flex;
+  gap:10px;
+}
+
+.logoutCard .btn{
+  flex:1;
+}
+
+.btnGhost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.45);
+}
+
+.btnGhost:hover{
+  background:rgba(255,255,255,.12);
+}
