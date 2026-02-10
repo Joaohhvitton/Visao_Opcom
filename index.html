@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<link rel="icon" type="image/png" sizes="32x32" href="Logo_OPCOM-removebg-preview.png">  
 <link rel="stylesheet" href="./style.css?v=3">
 </head>
 
@@ -81,8 +80,20 @@
 <div id="welcomePopup" class="welcomePopup hidden">
   <div class="welcomeCard">
     <h3>Bem-vindo ao Painel OPCOM 👋</h3>
-    <p>Agora os dados são carregados automaticamente da base compartilhada para manter a visão única e macro da equipe.</p>
+    <p>Agora os dados são carregados automaticamente da base compartilhada para manter a visão única entre as máquinas.</p>
     <button id="welcomeOkBtn" class="btn">OK</button>
+  </div>
+</div>
+
+
+<div id="logoutPopup" class="welcomePopup hidden">
+  <div class="welcomeCard logoutCard">
+    <h3>Tem certeza que deseja sair?</h3>
+    <p>Ao confirmar, sua sessão será encerrada e você retornará para a tela de login.</p>
+    <div class="logoutActions">
+      <button id="logoutCancelBtn" class="btn btnGhost">Cancelar</button>
+      <button id="logoutConfirmBtn" class="btn">Sair</button>
+    </div>
   </div>
 </div>
 
@@ -90,4 +101,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
