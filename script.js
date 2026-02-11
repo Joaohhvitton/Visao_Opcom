@@ -19,6 +19,9 @@ const welcomeOkBtn = document.getElementById("welcomeOkBtn");
 const logoutPopup = document.getElementById("logoutPopup");
 const logoutCancelBtn = document.getElementById("logoutCancelBtn");
 const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
+const collaboratorBtn = document.getElementById("collaboratorBtn");
+const collaboratorPopup = document.getElementById("collaboratorPopup");
+const collaboratorCloseBtn = document.getElementById("collaboratorCloseBtn");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -50,6 +53,12 @@ let dark = false;
 const baseColor = "#530F0A";
 const accent = "#ff6b57";
 
+const COLLABORATOR_SQUADS = {
+  "João Vitor": ["captura", "pix"],
+  "Alyne": ["comercial"],
+  "Keroleen": ["operações"],
+  "Danilo": ["dados"]
+};
 
 const WELCOME_POPUP_KEY = "welcomePopupSeen";
 
@@ -113,6 +122,17 @@ function cancelLogout() {
 function confirmLogout() {
   sessionStorage.clear();
   location.reload();
+}
+
+function openCollaboratorPopup() {
+  if (!collaboratorPopup) return;
+  renderCollaboratorCards(getFilteredData());
+  collaboratorPopup.classList.remove("hidden");
+}
+
+function closeCollaboratorPopup() {
+  if (!collaboratorPopup) return;
+  collaboratorPopup.classList.add("hidden");
 }
 
 /* ROLE */
@@ -238,6 +258,63 @@ function count(col, data, multi = false) {
   return m;
 }
 
+function getFilteredData() {
+  if (!base.length) return [];
+
+  return squadFilter.value === "Todos"
+    ? base
+    : base.filter(r => splitSquad(r["Squad/Team"]).includes(squadFilter.value));
+}
+
+
+
+function normalizeText(value) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeSquadLabel(value) {
+  return normalizeText(value)
+    .replace(/\b(squad|team|time)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isCollaboratorSquad(squadLabel, collaboratorTargets) {
+  const normalizedSquad = normalizeSquadLabel(squadLabel);
+  return collaboratorTargets.some(target => {
+    const normalizedTarget = normalizeSquadLabel(target);
+    return normalizedSquad === normalizedTarget || normalizedSquad.includes(normalizedTarget);
+  });
+}
+
+function renderCollaboratorCards(data) {
+  const container = document.getElementById("collaboratorCards");
+  if (!container) return;
+
+  const squadTotals = count("Squad/Team", data, true);
+
+  const cards = Object.entries(COLLABORATOR_SQUADS).map(([name, squads]) => {
+    const total = Object.entries(squadTotals).reduce((acc, [squad, amount]) => {
+      return acc + (isCollaboratorSquad(squad, squads) ? amount : 0);
+    }, 0);
+
+    return `
+      <div class="kpiCard">
+        <div>Quantidade de Demanda ${name}</div>
+        <div class="kpiValue">${total}</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = cards.join("");
+}
+
 function resetChart(id) {
   const ctx = document.getElementById(id);
   if (ctx?.chart) {
@@ -250,6 +327,7 @@ function clearDashboard() {
   kpiTotal.innerText = "0";
   kpiDone.innerText = "0";
   kpiBug.innerText = "0%";
+  renderCollaboratorCards([]);
   ["squadChart", "statusChart", "tipoChart", "prioChart"].forEach(resetChart);
 }
 
@@ -314,10 +392,7 @@ function render() {
     return;
   }
 
-  const data =
-    squadFilter.value === "Todos"
-      ? base
-      : base.filter(r => splitSquad(r["Squad/Team"]).includes(squadFilter.value));
+  const data = getFilteredData();
 
   const total = data.length;
   const done = data.filter(r => (r.Status || "").toLowerCase().includes("concl")).length;
@@ -326,6 +401,7 @@ function render() {
   kpiTotal.innerText = total;
   kpiDone.innerText = done;
   kpiBug.innerText = Math.round((bug / total) * 100 || 0) + "%";
+
 
   draw("squadChart", count("Squad/Team", data, true));
   draw("statusChart", count("Status", data));
@@ -368,5 +444,19 @@ if (logoutPopup) {
   });
 }
 
-loginBtn.addEventListener("click", doLogin);
 
+if (collaboratorBtn) {
+  collaboratorBtn.addEventListener("click", openCollaboratorPopup);
+}
+
+if (collaboratorCloseBtn) {
+  collaboratorCloseBtn.addEventListener("click", closeCollaboratorPopup);
+}
+
+if (collaboratorPopup) {
+  collaboratorPopup.addEventListener("click", e => {
+    if (e.target === collaboratorPopup) closeCollaboratorPopup();
+  });
+}
+
+loginBtn.addEventListener("click", doLogin);
