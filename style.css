@@ -555,11 +555,12 @@ canvas{
   to{transform:translateX(-100%);}
 }
 
+
 .collaboratorTicker.is-hidden{
-display: none;
+  display:none;
 }
 
-#tickterToogleBtn.is-off {
-opacity:.75;
-filter: saturate(.7);
+#tickerToggleBtn.is-off{
+  opacity:.78;
+  filter:saturate(.6);
 }
