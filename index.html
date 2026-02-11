@@ -42,6 +42,7 @@
     <div id="userBadge"></div>
     <button class="themeToggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     <input type="file" id="upload" class="btn">
+    <button id="collaboratorBtn" class="btn">Demandas por Colaborador</button>
     <button class="btnLogout" onclick="logout()">Sair</button>
   </div>
 </div>
@@ -64,10 +65,13 @@
   </div>
 </div>
 
+
 <!-- FILTRO -->
-<div class="filterBlock">
-  Filtrar Squad:
-  <select id="squadFilter"></select>
+<div class="filterBlock modernFilter">
+  <div class="filterLabel">Filtrar Squad</div>
+  <div class="filterSelectWrap">
+    <select id="squadFilter"></select>
+  </div>
 </div>
 
 <!-- GRÁFICOS -->
@@ -98,8 +102,16 @@
   </div>
 </div>
 
+<div id="collaboratorPopup" class="welcomePopup hidden">
+  <div class="welcomeCard collaboratorPopupCard">
+    <h3>Demandas por Colaborador</h3>
+    <p>Contagem de demandas por responsável, conforme squads associados.</p>
+    <div id="collaboratorCards" class="kpiGrid collaboratorGrid"></div>
+    <button id="collaboratorCloseBtn" class="btn">Fechar</button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
-
