@@ -576,6 +576,6 @@ if (tickerToggleBtn) {
 
 if (exportBaseBtn) {
   exportBaseBtn.addEventListener("click", exportDemandBase);
-}
 
+}
 loginBtn.addEventListener("click", doLogin);
