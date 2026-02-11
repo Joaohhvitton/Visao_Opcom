@@ -17,6 +17,7 @@
   --kpi-bg-2:#2a0705;
   --kpi-text:#ffffff;
   --surface-pattern-dot:rgba(255,255,255,.06);
+  --ticker-text:#7a1410;
 }
 
 .dark{
@@ -32,6 +33,7 @@
   --kpi-bg-2:#f2f2f2;
   --kpi-text:#1e293b;
   --surface-pattern-dot:rgba(0,0,0,.06);
+  --ticker-text:#ffffff;
 }
 
 /* =========================
@@ -41,6 +43,7 @@
 body{
   margin:0;
   padding:24px;
+  padding-bottom:84px;
   font-family:Segoe UI, Arial;
   background:var(--bg);
   color:var(--text);
@@ -512,4 +515,51 @@ canvas{
 
 .btnGhost:hover{
   background:rgba(255,255,255,.12);
+}
+
+
+/* =========================
+   RODAPÉ INFORMATIVO
+========================= */
+
+.collaboratorTicker{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:997;
+  overflow:hidden;
+  backdrop-filter:blur(4px);
+  background:rgba(255,255,255,.68);
+  border-top:1px solid rgba(122,20,16,.2);
+  padding:8px 0;
+}
+
+.dark .collaboratorTicker{
+  background:rgba(15,10,25,.65);
+  border-top:1px solid rgba(255,255,255,.18);
+}
+
+.collaboratorTickerTrack{
+  white-space:nowrap;
+  display:inline-block;
+  padding-left:100%;
+  color:var(--ticker-text);
+  font-weight:800;
+  letter-spacing:.2px;
+  animation:tickerMove 24s linear infinite;
+}
+
+@keyframes tickerMove{
+  from{transform:translateX(0);}
+  to{transform:translateX(-100%);}
+}
+
+.collaboratorTicker.is-hidden{
+display: none;
+}
+
+#tickterToogleBtn.is-off {
+opacity:.75;
+filter: saturate(.7);
 }
