@@ -23,6 +23,8 @@ const collaboratorBtn = document.getElementById("collaboratorBtn");
 const collaboratorPopup = document.getElementById("collaboratorPopup");
 const collaboratorCloseBtn = document.getElementById("collaboratorCloseBtn");
 const collaboratorTickerTrack = document.getElementById("collaboratorTickerTrack");
+const collaboratorTicker = document.getElementById("collaboratorTicker");
+const tickerToggleBtn = document.getElementById("tickerToggleBtn");
 const userBadge = document.getElementById("userBadge");
 const themeBtn = document.getElementById("themeBtn");
 const upload = document.getElementById("upload");
@@ -69,6 +71,8 @@ const COLLABORATOR_SQUADS = {
 };
 
 const WELCOME_POPUP_KEY = "welcomePopupSeen";
+const TICKER_PREF_KEY = "tickerEnabled";
+let tickerEnabled = localStorage.getItem(TICKER_PREF_KEY) !== "0";
 
 function showWelcomePopup() {
   if (!welcomePopup || sessionStorage.getItem(WELCOME_POPUP_KEY)) return;
@@ -79,6 +83,20 @@ function hideWelcomePopup() {
   if (!welcomePopup) return;
   welcomePopup.classList.add("hidden");
   sessionStorage.setItem(WELCOME_POPUP_KEY, "1");
+}
+
+
+function syncTickerUI() {
+  if (!collaboratorTicker || !tickerToggleBtn) return;
+  collaboratorTicker.classList.toggle("is-hidden", !tickerEnabled);
+  tickerToggleBtn.innerText = tickerEnabled ? "Rodapé: ON" : "Rodapé: OFF";
+  tickerToggleBtn.classList.toggle("is-off", !tickerEnabled);
+}
+
+function toggleTicker() {
+  tickerEnabled = !tickerEnabled;
+  localStorage.setItem(TICKER_PREF_KEY, tickerEnabled ? "1" : "0");
+  syncTickerUI();
 }
 
 
@@ -341,7 +359,7 @@ function buildCollaboratorTotals(data) {
 }
 
 function renderCollaboratorTicker(data) {
-  if (!collaboratorTickerTrack) return;
+  if (!collaboratorTickerTrack || !tickerEnabled) return;
 
   const totals = buildCollaboratorTotals(data);
   const message = totals
@@ -450,6 +468,8 @@ function render() {
 /* AUTO LOAD */
 
 window.onload = async () => {
+  syncTickerUI();
+
   if (sessionStorage.getItem("role")) {
     loginScreen.style.display = "none";
     applyRole();
@@ -495,6 +515,10 @@ if (collaboratorPopup) {
   collaboratorPopup.addEventListener("click", e => {
     if (e.target === collaboratorPopup) closeCollaboratorPopup();
   });
+}
+
+if (tickerToggleBtn) {
+  tickerToggleBtn.addEventListener("click", toggleTicker);
 }
 
 loginBtn.addEventListener("click", doLogin);
