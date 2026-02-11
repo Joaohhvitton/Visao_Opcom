@@ -28,6 +28,7 @@ const tickerToggleBtn = document.getElementById("tickerToggleBtn");
 const userBadge = document.getElementById("userBadge");
 const themeBtn = document.getElementById("themeBtn");
 const upload = document.getElementById("upload");
+const exportBaseBtn = document.getElementById("exportBaseBtn");
 const squadFilter = document.getElementById("squadFilter");
 const kpiTotal = document.getElementById("kpiTotal");
 const kpiDone = document.getElementById("kpiDone");
@@ -37,6 +38,22 @@ const USERS = {
   admin: { pass: "123", role: "admin" },
   teste: { pass: "123", role: "teste" }
 };
+
+function normalizeCredential(value) {
+  return (value || "").trim().toLowerCase();
+}
+
+function resolveUser(inputUser, inputPass) {
+  const normalizedUser = normalizeCredential(inputUser);
+  const normalizedPass = normalizeCredential(inputPass);
+
+  return Object.entries(USERS).find(([username, info]) => {
+    return (
+      normalizeCredential(username) === normalizedUser &&
+      normalizeCredential(info.pass) === normalizedPass
+    );
+  });
+}
 
 function resolveGoogleSheetsConfig() {
   const fromNested = window.APP_CONFIG?.googleSheets;
@@ -109,18 +126,20 @@ function doLogin() {
 
   setTimeout(async () => {
     try {
-      const u = user.value.trim();
-      const p = pass.value.trim();
+      const u = user.value;
+      const p = pass.value;
+      const resolved = resolveUser(u, p);
 
-      if (!USERS[u] || USERS[u].pass !== p) {
+      if (!resolved) {
         loginBtn.classList.remove("loading");
         loginText.innerText = "Entrar";
         loginError.innerText = "Login inválido";
         return;
       }
 
-      sessionStorage.setItem("role", USERS[u].role);
-      sessionStorage.setItem("user", u);
+      const [username, userInfo] = resolved;
+      sessionStorage.setItem("role", userInfo.role);
+      sessionStorage.setItem("user", username);
 
       loginScreen.style.display = "none";
       applyRole();
@@ -247,6 +266,40 @@ async function loadGoogleSheetBase() {
   } catch (err) {
     console.error(err);
     alert(`Não foi possível carregar dados do Google Sheets. Motivo: ${err.message}`);
+  }
+}
+
+async function exportDemandBase() {
+  if (!base.length) {
+    alert("Não há dados para exportar no momento.");
+    return;
+  }
+
+  if (!exportBaseBtn) return;
+
+  exportBaseBtn.classList.add("loading-export");
+  exportBaseBtn.disabled = true;
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 250));
+
+    const worksheet = XLSX.utils.json_to_sheet(base);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Demandas");
+
+    const date = new Date();
+    const stamp = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+      String(date.getHours()).padStart(2, "0"),
+      String(date.getMinutes()).padStart(2, "0")
+    ].join("");
+
+    XLSX.writeFile(workbook, `base_demandas_${stamp}.xlsx`);
+  } finally {
+    exportBaseBtn.classList.remove("loading-export");
+    exportBaseBtn.disabled = false;
   }
 }
 
@@ -521,5 +574,8 @@ if (tickerToggleBtn) {
   tickerToggleBtn.addEventListener("click", toggleTicker);
 }
 
-loginBtn.addEventListener("click", doLogin);
+if (exportBaseBtn) {
+  exportBaseBtn.addEventListener("click", exportDemandBase);
+}
 
+loginBtn.addEventListener("click", doLogin);
