@@ -89,6 +89,41 @@ body{
   cursor:pointer;
 }
 
+
+.btn .btnSpinner{
+  display:none;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.35);
+  border-top-color:#fff;
+  animation:spin .7s linear infinite;
+}
+
+.btn.loading-export{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  opacity:.9;
+  cursor:wait;
+}
+
+.btn.loading-export .btnSpinner{
+  display:inline-block;
+}
+
+.btn.loading-export .btnLabel{
+  opacity:.92;
+}
+
+.btn:disabled{
+  opacity:.78;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
 /* =========================
    KPI
 ========================= */
