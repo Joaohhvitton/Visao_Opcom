@@ -22,6 +22,14 @@ const logoutConfirmBtn = document.getElementById("logoutConfirmBtn");
 const collaboratorBtn = document.getElementById("collaboratorBtn");
 const collaboratorPopup = document.getElementById("collaboratorPopup");
 const collaboratorCloseBtn = document.getElementById("collaboratorCloseBtn");
+const collaboratorTickerTrack = document.getElementById("collaboratorTickerTrack");
+const userBadge = document.getElementById("userBadge");
+const themeBtn = document.getElementById("themeBtn");
+const upload = document.getElementById("upload");
+const squadFilter = document.getElementById("squadFilter");
+const kpiTotal = document.getElementById("kpiTotal");
+const kpiDone = document.getElementById("kpiDone");
+const kpiBug = document.getElementById("kpiBug");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -82,26 +90,34 @@ function doLogin() {
   loginText.innerText = "Validando...";
 
   setTimeout(async () => {
-    const u = user.value.trim();
-    const p = pass.value.trim();
+    try {
+      const u = user.value.trim();
+      const p = pass.value.trim();
 
-    if (!USERS[u] || USERS[u].pass !== p) {
+      if (!USERS[u] || USERS[u].pass !== p) {
+        loginBtn.classList.remove("loading");
+        loginText.innerText = "Entrar";
+        loginError.innerText = "Login inválido";
+        return;
+      }
+
+      sessionStorage.setItem("role", USERS[u].role);
+      sessionStorage.setItem("user", u);
+
+      loginScreen.style.display = "none";
+      applyRole();
+      await loadGoogleSheetBase();
+      showWelcomePopup();
+
       loginBtn.classList.remove("loading");
       loginText.innerText = "Entrar";
-      loginError.innerText = "Login inválido";
-      return;
+    } catch (err) {
+      console.error("Erro no fluxo de login", err);
+      loginBtn.classList.remove("loading");
+      loginText.innerText = "Entrar";
+      loginError.innerText = "Erro ao entrar. Tente novamente.";
+      loginScreen.style.display = "flex";
     }
-
-    sessionStorage.setItem("role", USERS[u].role);
-    sessionStorage.setItem("user", u);
-
-    loginScreen.style.display = "none";
-    applyRole();
-    await loadGoogleSheetBase();
-    showWelcomePopup();
-
-    loginBtn.classList.remove("loading");
-    loginText.innerText = "Entrar";
   }, 600);
 }
 
@@ -297,12 +313,9 @@ function renderCollaboratorCards(data) {
   const container = document.getElementById("collaboratorCards");
   if (!container) return;
 
-  const squadTotals = count("Squad/Team", data, true);
+  const totals = buildCollaboratorTotals(data);
 
-  const cards = Object.entries(COLLABORATOR_SQUADS).map(([name, squads]) => {
-    const total = Object.entries(squadTotals).reduce((acc, [squad, amount]) => {
-      return acc + (isCollaboratorSquad(squad, squads) ? amount : 0);
-    }, 0);
+  const cards = totals.map(({ name, total }) => {
 
     return `
       <div class="kpiCard">
@@ -313,6 +326,29 @@ function renderCollaboratorCards(data) {
   });
 
   container.innerHTML = cards.join("");
+}
+
+function buildCollaboratorTotals(data) {
+  const squadTotals = count("Squad/Team", data, true);
+
+  return Object.entries(COLLABORATOR_SQUADS).map(([name, squads]) => {
+    const total = Object.entries(squadTotals).reduce((acc, [squad, amount]) => {
+      return acc + (isCollaboratorSquad(squad, squads) ? amount : 0);
+    }, 0);
+
+    return { name, total };
+  });
+}
+
+function renderCollaboratorTicker(data) {
+  if (!collaboratorTickerTrack) return;
+
+  const totals = buildCollaboratorTotals(data);
+  const message = totals
+    .map(item => `${item.name}: ${item.total} demandas`)
+    .join("   •   ");
+
+  collaboratorTickerTrack.textContent = message || "Sem dados de demandas por colaborador.";
 }
 
 function resetChart(id) {
@@ -328,6 +364,7 @@ function clearDashboard() {
   kpiDone.innerText = "0";
   kpiBug.innerText = "0%";
   renderCollaboratorCards([]);
+  renderCollaboratorTicker([]);
   ["squadChart", "statusChart", "tipoChart", "prioChart"].forEach(resetChart);
 }
 
@@ -402,6 +439,7 @@ function render() {
   kpiDone.innerText = done;
   kpiBug.innerText = Math.round((bug / total) * 100 || 0) + "%";
 
+  renderCollaboratorTicker(data);
 
   draw("squadChart", count("Squad/Team", data, true));
   draw("statusChart", count("Status", data));
@@ -460,3 +498,4 @@ if (collaboratorPopup) {
 }
 
 loginBtn.addEventListener("click", doLogin);
+
