@@ -214,7 +214,8 @@ body{
   font-size:14px;
 }
 
-#squadFilter{
+#squadFilter,
+#detailStatusFilter{
   width:100%;
   appearance:none;
   -webkit-appearance:none;
@@ -228,17 +229,20 @@ body{
   transition:.25s;
 }
 
-#squadFilter:hover{
+#squadFilter:hover,
+#detailStatusFilter:hover{
   background:rgba(255,255,255,.18);
 }
 
-#squadFilter:focus{
+#squadFilter:focus,
+#detailStatusFilter:focus{
   outline:none;
   border-color:var(--accent);
   box-shadow:0 0 0 3px rgba(255,107,87,.25);
 }
 
-#squadFilter option{
+#squadFilter option,
+#detailStatusFilter option{
   color:#1e293b;
 }
 
@@ -638,4 +642,10 @@ canvas{
   top:0;
   z-index:1;
   background:rgba(0,0,0,.22);
+}
+
+
+.detailsFilterBlock{
+  margin:0 0 12px;
+  padding:10px 12px;
 }
