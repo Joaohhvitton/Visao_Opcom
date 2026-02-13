@@ -39,12 +39,12 @@ const detailStatusFilter = document.getElementById("detailStatusFilter");
 
 const USERS = {
   admin: { pass: "654321", role: "admin" },
-  teste: { pass: "123", role: "joao" }
-  teste: { pass: "123", role: "fabio" }
-  teste: { pass: "123", role: "danilo" }
-  teste: { pass: "123", role: "alyne" }
-  teste: { pass: "123", role: "keroleen" }
-  teste: { pass: "123", role: "larissa" }
+  joao: { pass: "rede2026", role: "joao" },
+  fabio: { pass: "rede2026", role: "fabio" },
+  danilo: { pass: "rede2026", role: "danilo" },
+  alyne: { pass: "rede2026", role: "alyne" },
+  keroleen: { pass: "rede2026", role: "keroleen"},
+  larissa: { pass: "rede2026", role: "larissa" }
 };
 
 function normalizeCredential(value) {
@@ -673,4 +673,5 @@ if (exportBaseBtn) {
 
 }
 loginBtn.addEventListener("click", doLogin);
+
 
