@@ -1,10 +1,13 @@
-window.APP_CONFIG = {
+window.APP_CONFIG = window.APP_CONFIG || {
   googleSheets: {
     sheetId: "1nc6XcUjsddOm7qxTm1O1tLuNn_vxxdFZzI9S4kZAWLc",
     apiKey: "AIzaSyD9PazDh8LE7O6m76ODALpX9swQgdafgs4",
     range: "Base!A:P"
   }
 };
+
+
+
 
 Chart.register(ChartDataLabels);
 
@@ -33,6 +36,8 @@ const squadFilter = document.getElementById("squadFilter");
 const kpiTotal = document.getElementById("kpiTotal");
 const kpiDone = document.getElementById("kpiDone");
 const kpiBug = document.getElementById("kpiBug");
+const detailsMeta = document.getElementById("detailsMeta");
+const detailsBody = document.getElementById("detailsBody");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -176,6 +181,7 @@ function confirmLogout() {
   sessionStorage.clear();
   location.reload();
 }
+
 
 function openCollaboratorPopup() {
   if (!collaboratorPopup) return;
@@ -422,6 +428,43 @@ function renderCollaboratorTicker(data) {
   collaboratorTickerTrack.textContent = message || "Sem dados de demandas por colaborador.";
 }
 
+function formatDate(value) {
+  if (!value) return "-";
+  const raw = String(value).trim();
+  const parsed = new Date(raw);
+
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString("pt-BR");
+  }
+
+  return raw;
+}
+
+function renderDetailsTable(data) {
+  if (!detailsBody || !detailsMeta) return;
+
+  if (!data.length) {
+    detailsBody.innerHTML = '<tr><td colspan="7">Nenhuma demanda encontrada para o filtro selecionado.</td></tr>';
+    detailsMeta.textContent = "0 demandas exibidas.";
+    return;
+  }
+
+  detailsBody.innerHTML = data.map(item => `
+    <tr>
+      <td>${item["Título"] || item["Titulo"] || item["Demanda"] || item["Nome da Demanda"] || item["Tarefa"] || "-"}</td>
+      <td>${item["Squad/Team"] || "-"}</td>
+      <td>${item["Status"] || "-"}</td>
+      <td>${item["Tipo"] || "-"}</td>
+      <td>${item["Prioridade"] || "-"}</td>
+      <td>${item["Responsável"] || item["Responsavel"] || "-"}</td>
+      <td>${formatDate(item["Data"] || item["Created"] || item["Criado em"])}</td>
+    </tr>
+  `).join("");
+
+  const suffix = data.length === 1 ? "demanda exibida" : "demandas exibidas";
+  detailsMeta.textContent = `${data.length} ${suffix}.`;
+}
+
 function resetChart(id) {
   const ctx = document.getElementById(id);
   if (ctx?.chart) {
@@ -436,6 +479,7 @@ function clearDashboard() {
   kpiBug.innerText = "0%";
   renderCollaboratorCards([]);
   renderCollaboratorTicker([]);
+  renderDetailsTable([]);
   ["squadChart", "statusChart", "tipoChart", "prioChart"].forEach(resetChart);
 }
 
@@ -511,6 +555,7 @@ function render() {
   kpiBug.innerText = Math.round((bug / total) * 100 || 0) + "%";
 
   renderCollaboratorTicker(data);
+  renderDetailsTable(data);
 
   draw("squadChart", count("Squad/Team", data, true));
   draw("statusChart", count("Status", data));
@@ -573,6 +618,7 @@ if (collaboratorPopup) {
 if (tickerToggleBtn) {
   tickerToggleBtn.addEventListener("click", toggleTicker);
 }
+
 
 if (exportBaseBtn) {
   exportBaseBtn.addEventListener("click", exportDemandBase);
