@@ -599,3 +599,43 @@ canvas{
   opacity:.78;
   filter:saturate(.6);
 }
+
+
+.detailsCard{
+  margin-top:18px;
+}
+
+.detailsMeta{
+  margin:0 0 10px;
+  font-weight:700;
+  opacity:.92;
+}
+
+.detailsTableWrap{
+  overflow:auto;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+}
+
+.detailsTable{
+  width:100%;
+  border-collapse:collapse;
+  min-width:980px;
+}
+
+.detailsTable th,
+.detailsTable td{
+  padding:10px 12px;
+  text-align:left;
+  font-size:13px;
+  border-bottom:1px solid rgba(255,255,255,.16);
+  white-space:nowrap;
+}
+
+.detailsTable th{
+  position:sticky;
+  top:0;
+  z-index:1;
+  background:rgba(0,0,0,.22);
+}
