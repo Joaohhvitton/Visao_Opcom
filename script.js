@@ -6,7 +6,6 @@ window.APP_CONFIG = window.APP_CONFIG || {
   }
 };
 
-
 Chart.register(ChartDataLabels);
 
 const loginBtn = document.getElementById("loginBtn");
@@ -668,3 +667,4 @@ if (exportBaseBtn) {
   exportBaseBtn.addEventListener("click", exportDemandBase);
 
 }
+loginBtn.addEventListener("click", doLogin);
