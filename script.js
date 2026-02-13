@@ -36,6 +36,7 @@ const kpiDone = document.getElementById("kpiDone");
 const kpiBug = document.getElementById("kpiBug");
 const detailsMeta = document.getElementById("detailsMeta");
 const detailsBody = document.getElementById("detailsBody");
+const detailStatusFilter = document.getElementById("detailStatusFilter");
 
 const USERS = {
   admin: { pass: "123", role: "admin" },
@@ -447,6 +448,34 @@ function formatDate(value) {
   return raw;
 }
 
+function buildDetailStatusFilter(data) {
+  if (!detailStatusFilter) return;
+
+  const current = detailStatusFilter.value || "Todos";
+  const statuses = new Set();
+  data.forEach(item => {
+    const status = (item.Status || "").trim();
+    if (status) statuses.add(status);
+  });
+
+  const options = ["Todos", ...Array.from(statuses).sort((a, b) => a.localeCompare(b, "pt-BR"))];
+  detailStatusFilter.innerHTML = options.map(status => `<option value="${status}">${status}</option>`).join("");
+  detailStatusFilter.value = options.includes(current) ? current : "Todos";
+}
+
+function getDetailsFilteredData(data) {
+  if (!detailStatusFilter) return data;
+  const selected = detailStatusFilter.value;
+
+  if (!selected || selected === "Todos") return data;
+  return data.filter(item => (item.Status || "").trim() === selected);
+}
+
+function renderDetailsPanel(data) {
+  buildDetailStatusFilter(data);
+  renderDetailsTable(getDetailsFilteredData(data));
+}
+
 function renderDetailsTable(data) {
   if (!detailsBody || !detailsMeta) return;
 
@@ -481,6 +510,7 @@ function resetChart(id) {
 
 function clearDashboard() {
   squadFilter.innerHTML = "<option>Todos</option>";
+  if (detailStatusFilter) detailStatusFilter.innerHTML = "<option>Todos</option>";
   kpiTotal.innerText = "0";
   kpiDone.innerText = "0";
   kpiBug.innerText = "0%";
@@ -503,6 +533,13 @@ squadFilter.onchange = () => {
   animateFilterRefresh();
   render();
 };
+
+
+if (detailStatusFilter) {
+  detailStatusFilter.addEventListener("change", () => {
+    renderDetailsTable(getDetailsFilteredData(getFilteredData()));
+  });
+}
 
 function animateFilterRefresh() {
   document.querySelectorAll(".card,.kpiCard").forEach((el, i) => {
@@ -562,7 +599,7 @@ function render() {
   kpiBug.innerText = Math.round((bug / total) * 100 || 0) + "%";
 
   renderCollaboratorTicker(data);
-  renderDetailsTable(data);
+  renderDetailsPanel(data);
 
   draw("squadChart", count("Squad/Team", data, true));
   draw("statusChart", count("Status", data));
@@ -631,4 +668,3 @@ if (exportBaseBtn) {
   exportBaseBtn.addEventListener("click", exportDemandBase);
 
 }
-loginBtn.addEventListener("click", doLogin);
