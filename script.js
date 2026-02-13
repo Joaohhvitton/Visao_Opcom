@@ -7,8 +7,6 @@ window.APP_CONFIG = window.APP_CONFIG || {
 };
 
 
-
-
 Chart.register(ChartDataLabels);
 
 const loginBtn = document.getElementById("loginBtn");
@@ -428,6 +426,15 @@ function renderCollaboratorTicker(data) {
   collaboratorTickerTrack.textContent = message || "Sem dados de demandas por colaborador.";
 }
 
+function normalizeStatus(value) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function formatDate(value) {
   if (!value) return "-";
   const raw = String(value).trim();
@@ -547,7 +554,7 @@ function render() {
   const data = getFilteredData();
 
   const total = data.length;
-  const done = data.filter(r => (r.Status || "").toLowerCase().includes("concl")).length;
+  const done = data.filter(r => normalizeStatus(r.Status) === "concluido").length;
   const bug = data.filter(r => (r.Tipo || "").toLowerCase().includes("bug")).length;
 
   kpiTotal.innerText = total;
