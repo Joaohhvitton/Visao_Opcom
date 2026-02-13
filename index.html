@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
- <link rel="icon" type="img" sizes="32x32" href="Logo_OPCOM-removebg-preview.png"> 
+<link rel="icon" type="img" sizes="32x32" href="Logo_OPCOM-removebg-preview.png">
 <link rel="stylesheet" href="./style.css?v=3">
 </head>
 
@@ -43,7 +43,7 @@
     <button class="themeToggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     <input type="file" id="upload" class="btn">
     <button id="exportBaseBtn" class="btn"><span class="btnLabel">Extrair Base</span><span class="btnSpinner" aria-hidden="true"></span></button>
-    <button id="collaboratorBtn" class="btn">Demandas por Colaborador</button>
+        <button id="collaboratorBtn" class="btn">Demandas por Colaborador</button>
     <button id="tickerToggleBtn" class="btn">Rodapé: ON</button>
     <button class="btnLogout" onclick="logout()">Sair</button>
   </div>
@@ -84,6 +84,28 @@
   <div class="card"><h3>Prioridade</h3><canvas id="prioChart"></canvas></div>
 </div>
 
+
+<div class="card detailsCard">
+  <h3>Demandas Detalhadas</h3>
+  <p id="detailsMeta" class="detailsMeta">Carregando base...</p>
+  <div class="detailsTableWrap">
+    <table class="detailsTable">
+      <thead>
+        <tr>
+          <th>Título da Demanda</th>
+          <th>Squad/Team</th>
+          <th>Status</th>
+          <th>Tipo</th>
+          <th>Prioridade</th>
+          <th>Responsável</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="detailsBody"></tbody>
+    </table>
+  </div>
+</div>
+
 <div id="welcomePopup" class="welcomePopup hidden">
   <div class="welcomeCard">
     <h3>Bem-vindo ao Painel OPCOM 👋</h3>
@@ -122,60 +144,5 @@
 
 <script src="config.js"></script>
 <script src="script.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>Detalhes por Squad | OPCOM</title>
-<link rel="icon" type="img" sizes="32x32" href="Logo_OPCOM-removebg-preview.png">
-<link rel="stylesheet" href="./style.css?v=3">
-<style>
-  .detailsToolbar{display:flex;gap:10px;align-items:center;margin:10px 0 14px}
-  .detailsTableWrap{overflow:auto;border-radius:14px;box-shadow:0 12px 28px rgba(0,0,0,.18)}
-  .detailsTable{width:100%;border-collapse:collapse;background:#fff;color:#1e293b}
-  .detailsTable th,.detailsTable td{padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:13px;text-align:left;white-space:nowrap}
-  .detailsTable th{background:#f8fafc;position:sticky;top:0;z-index:1}
-  .detailsMeta{margin:0 0 8px;font-weight:600;opacity:.9}
-</style>
-</head>
-<body>
-<div class="header">
-  <h2>Detalhes por Squad 📋</h2>
-  <div class="header-right">
-    <button class="btn" onclick="location.href='index.html'">Voltar ao Painel</button>
-  </div>
-</div>
-
-<div class="filterBlock modernFilter">
-  <div class="filterLabel">Filtrar Squad</div>
-  <div class="filterSelectWrap">
-    <select id="detailSquadFilter"></select>
-  </div>
-</div>
-
-<p id="detailsMeta" class="detailsMeta">Carregando base...</p>
-
-<div class="detailsTableWrap">
-  <table class="detailsTable">
-    <thead>
-      <tr>
-        <th>Título</th>
-        <th>Squad/Team</th>
-        <th>Status</th>
-        <th>Tipo</th>
-        <th>Prioridade</th>
-        <th>Responsável</th>
-        <th>Data</th>
-      </tr>
-    </thead>
-    <tbody id="detailsBody"></tbody>
-  </table>
-</div>
-
-<script src="config.js"></script>
-<script src="detalhes-squads.js"></script>
 </body>
 </html>
