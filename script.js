@@ -39,7 +39,7 @@ const detailStatusFilter = document.getElementById("detailStatusFilter");
 
 const USERS = {
   admin: { pass: "654321", role: "admin" },
-  joao: { pass: "rede2026", role: "joao" },
+  joao: { pass: "joao321", role: "joao" },
   fabio: { pass: "rede2026", role: "fabio" },
   danilo: { pass: "rede2026", role: "danilo" },
   alyne: { pass: "rede2026", role: "alyne" },
